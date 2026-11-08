@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="Etude incendie by Kevin v30 : recherche prédictive + DOSSIER technique par modèle (toutes marques/motorisations)">
+<meta name="description" content="Etude incendie by Kevin v26 : pavé Pannes connues par thème, méga-base 4 sites, IA locale, juriste, photos réelles">
 <meta name="theme-color" content="#8f1d2c">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="images/icon.svg">
@@ -30,12 +30,12 @@
 <p style="margin-top:.8rem;font-size:.8rem;opacity:.8">Notification directe sur l’APK admin (sans mail ni SMS).</p>
 </div>
 </div>
-<div id="splash"><img src="images/icon.svg" class="logo" alt=""><h1>Etude incendie</h1><p>by Kevin — v30 dossier</p></div>
+<div id="splash"><img src="images/icon.svg" class="logo" alt=""><h1>Etude incendie</h1><p>by Kevin — v26 méga-base</p></div>
 <div id="updateBanner" class="update-banner"></div>
 
 <header class="app-header" id="appHeader"><div class="header-content">
 <img src="images/icon.svg" alt="" class="header-logo" onerror="this.style.display='none'">
-<div><h1>🔥 Etude incendie by Kevin</h1><p class="subtitle">v30 • Prédictif + DOSSIER technique • 12 familles • 45 marques • Admin obligatoire</p></div>
+<div><h1>🔥 Etude incendie by Kevin</h1><p class="subtitle">v26 • Pannes connues par thème • Méga-base 4 sites • IA locale • Juriste • Photos réelles</p></div>
 </div></header>
 
 <section id="adminPanel" class="search-section" style="display:none;border-top:4px solid #2e7d32">
@@ -49,15 +49,12 @@
 
 <section class="search-section garage-box">
 <h2 style="margin-top:0">🔎 Recherche unifiée prédictive</h2>
-<p style="opacity:.8;font-size:.85rem;margin-bottom:.6rem">« elroq » → DOSSIER + 36 fiches • « byd han fuite fluide » • « ford f-150 échauffement »</p>
 <div class="ac-wrap" style="position:relative">
 <input id="unifiedInput" autocomplete="off" placeholder="Marque, modèle, motorisation, panne… (prédictions cliquables)" style="font-size:1.1rem;padding:1rem">
 <div id="unifiedPredict" class="ac-box" style="display:none"></div>
 </div>
 <div id="unifiedResults" style="margin-top:1rem"></div>
 </section>
-
-<!-- Section 🔎 PRÉDICTIVE + DOSSIER injectée par js/predict-v30.js -->
 
 <div id="connectionStatus" class="connection-status online"><span class="status-text">En ligne</span></div>
 
@@ -71,6 +68,7 @@
 </nav>
 <section id="navResults" style="display:none;scroll-margin-top:110px"></section>
 
+<!-- 🧰 PANNES CONNUES + 🤖 IA LOCALE : injectés automatiquement par js/mega-pannes.js avant cette section -->
 <section id="section-overheat"><h2>🌡️ Surchauffes thermique & VE</h2><div id="overheatChips" class="main-nav" style="box-shadow:none;padding:.5rem 0"></div><div class="causes-grid" id="overheatGrid"></div></section>
 <section id="section-mech"><h2>⚙️ Mécanique : courroies, boîtes, turbo, EGR, refroidisseur EGR</h2><div id="mechChips" class="main-nav" style="box-shadow:none;padding:.5rem 0"></div><div class="causes-grid" id="mechGrid"></div></section>
 <section id="section-leaks"><h2>🛢️ Fuites : huile, carburant, fluides</h2><div id="leaksChips" class="main-nav" style="box-shadow:none;padding:.5rem 0"></div><div class="causes-grid" id="leaksGrid"></div></section>
@@ -85,19 +83,18 @@
 <div class="rs-box"><label>⛽ GPL</label><input id="q-lpg"><button class="rs-btn" data-energy="lpg">Chercher</button></div>
 </div><p id="recallStats" class="ve-intro"></p><div class="causes-grid" id="recallGrid"></div></section>
 
-<section><h2>📋 Fiches techniques origine de feu</h2><p class="ve-intro">10 thermiques + 10 VE/HT — modales 8 rubriques sapiteur.</p></section>
 <section id="section-fo-zone" style="border-top:4px solid #d32f2f"><h2>🎯 Déterminer la ZONE DE DÉPART (foyer)</h2><div class="method-steps" id="fo-zone"></div></section>
 <section id="section-fo-ev" style="border-top:4px solid #7c4dff"><h2>🔋 Feu VE : départ & propagation</h2><div id="fo-ev" class="runaway-phases"></div></section>
 <section id="section-fo-compare" style="border-top:4px solid #ff6f00"><h2>⚖️ ÉLECTRIQUE vs MÉCANIQUE vs FLUIDE</h2><div id="fo-compare"></div></section>
-<section id="section-fo-dpf" style="border-top:4px solid #455a64"><h2>🌫️ Départ de feu FAP / catalyseur</h2><div id="fo-dpf" class="runaway-details"></div></section>
+<section id="section-fo-dpf" style="border-top:4px solid #455a64"><h2>🌫️ Feu FAP / catalyseur</h2><div id="fo-dpf" class="runaway-details"></div></section>
 
 <section><h2>🔬 Méthodologie NFPA 921</h2><div class="method-steps" id="methodSteps"></div><h3>📐 Patterns</h3><div class="patterns-grid" id="patternsGrid"></div></section>
 <section><h2>⚗️ Chimie du feu</h2><div class="tetrahedron" id="tetrahedron"></div><div class="phenomena-grid" id="phenomenaGrid"></div><div class="table-container"><table class="metal-table" id="gasTable"><thead><tr><th>Gaz</th><th>Source</th><th>Danger</th></tr></thead><tbody></tbody></table></div></section>
 <section><h2>📍 Zones du véhicule</h2><div class="ve-zones" id="vz-grid"></div></section>
 <section><h2>🎯 Origines (analyse ingénieur)</h2><div id="vo-grid"></div></section>
-<section><h2>🧱 Polymères & charge calorifique</h2><div class="table-container"><table class="metal-table"><thead><tr><th>Polymère</th><th>Usages</th><th>Feu</th><th>Rôle</th></tr></thead><tbody id="vp-table"></tbody></table></div><div class="id-card" id="vf-load"></div></section>
+<section><h2>🧱 Polymères</h2><div class="table-container"><table class="metal-table"><thead><tr><th>Polymère</th><th>Usages</th><th>Feu</th><th>Rôle</th></tr></thead><tbody id="vp-table"></tbody></table></div><div class="id-card" id="vf-load"></div></section>
 <section><h2>📈 Développement du feu</h2><div id="vd-stages" class="runaway-phases"></div><h3>Aéraulique</h3><div class="id-card" id="vd-vent"></div><h3>Propagation</h3><div class="id-card" id="vd-spread"></div><h3>Direction</h3><div class="id-card" id="vd-dir"></div></section>
-<section><h2>🔋 Batterie HT : séquence & preuves</h2><div id="ev-seq" class="runaway-phases"></div><div id="ev-gas"></div><div class="id-card" id="ev-trig"></div><div class="id-card" id="ev-cc"></div><div class="id-card" id="ev-chg"></div><div id="ev-reig"></div><div class="id-card" id="ev-ext"></div></section>
+<section><h2>🔋 Batterie HT</h2><div id="ev-seq" class="runaway-phases"></div><div id="ev-gas"></div><div class="id-card" id="ev-trig"></div><div class="id-card" id="ev-cc"></div><div class="id-card" id="ev-chg"></div><div id="ev-reig"></div><div class="id-card" id="ev-ext"></div></section>
 <section><h2>🚗 Spécifique thermique</h2><div id="th-expert" class="runaway-details"></div></section>
 <section><h2>🗺️ Cartographie de fusion</h2><div class="table-container"><table class="metal-table"><thead><tr><th>Matériau</th><th>T°</th><th>Interprétation</th></tr></thead><tbody id="vm-table"></tbody></table></div></section>
 <section><h2>🧑 Protocole véhicule</h2><div class="method-steps" id="vproto"></div></section>
@@ -107,13 +104,13 @@
 <section><h2>🏢 Bâtiments</h2><div class="causes-grid" id="buildingCauses"></div><h3>Propagation</h3><div class="propagation-grid" id="propagationGrid"></div></section>
 <section><h2>🧪 Chimique</h2><div class="table-container"><table class="metal-table" id="selfIgnitionTable"><thead><tr><th>Matériau</th><th>T°</th><th>Mécanisme</th><th>Prévention</th></tr></thead><tbody></tbody></table></div><div id="incompatibilities"></div></section>
 <section><h2>🎯 Sources de départ</h2><div class="causes-grid" id="causesGrid"></div></section>
-<section><h2>🌡️ Points de fusion des métaux</h2><div class="table-container"><table id="metalTable" class="metal-table"><thead><tr><th>Métal</th><th>°C</th><th>°F</th><th>Aspect</th></tr></thead><tbody></tbody></table></div></section>
+<section><h2>🌡️ Points de fusion</h2><div class="table-container"><table id="metalTable" class="metal-table"><thead><tr><th>Métal</th><th>°C</th><th>°F</th><th>Aspect</th></tr></thead><tbody></tbody></table></div></section>
 <section><h2>🔌 Fils (ASTM E2929)</h2><div class="analysis-grid" id="wireAnalysisGrid"></div></section>
-<section><h2>🔩 Identification sur métal</h2><div class="identification-cards" id="metalIdGrid"></div></section>
+<section><h2>🔩 Métal</h2><div class="identification-cards" id="metalIdGrid"></div></section>
 <section><h2>📷 Galerie photos réelles</h2><div class="gallery-grid" id="photoGallery"></div></section>
 
 <section class="storage-info"><div class="storage-card">
-<h3>💾 Base locale massive v30 + MAJ mensuelle</h3>
+<h3>💾 Base locale massive v26 + MAJ mensuelle</h3>
 <p id="storageStatus">Init...</p><p id="feedInfo" class="feed-info"></p>
 <button id="syncNowBtn" class="btn-offline">🔄 MAJ maintenant</button>
 <button id="offlinePhotosBtn" class="btn-offline">📥 Photos hors ligne</button>
@@ -135,18 +132,16 @@
 <p id="adminMsg"></p>
 </div></section>
 
-<footer class="app-footer"><p>© 2026 Etude incendie by Kevin</p><p class="version">v30 • DOSSIER technique par modèle • Prédictif toutes marques/motorisations</p></footer>
+<footer class="app-footer"><p>© 2026 Etude incendie by Kevin</p><p class="version">v26 • Méga-base 4 sites • IA locale • Juriste • NFPA 921 • ASTM E2929</p></footer>
 
 <div id="lightbox" class="lightbox hidden"><button class="lightbox-close" onclick="closeLightbox()">×</button><img id="lightboxImg" src="" alt=""><p id="lightboxCaption" class="lightbox-caption"></p><p id="lightboxCredit" class="lightbox-credit"></p></div>
 
 <script src="js/data.js"></script>
 <script src="js/engine.js"></script>
 <script src="js/search-v25.js"></script>
+<script src="js/mega-pannes.js"></script>
 <script src="js/app.js"></script>
 <script src="js/fiches-techniques.js"></script>
-<script src="js/cross-brand-db.js"></script>
-<script src="js/expert-v28.js"></script>
-<script src="js/predict-v30.js"></script>
 <script>
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('service-worker.js'));
 (function(){let d=false;function h(){if(d)return;d=true;const s=document.getElementById('splash');if(s){s.classList.add('hidden');setTimeout(()=>s.remove(),700);}}
