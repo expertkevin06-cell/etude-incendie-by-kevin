@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="Etude incendie by Kevin v28 : 12 familles de pannes × 45 marques, causes & conséquences sapiteur sur chaque fiche">
+<meta name="description" content="Etude incendie by Kevin v29 : recherche prédictive par marque / modèle / motorisation + 12 familles sapiteur">
 <meta name="theme-color" content="#8f1d2c">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="images/icon.svg">
@@ -30,12 +30,12 @@
 <p style="margin-top:.8rem;font-size:.8rem;opacity:.8">Notification directe sur l’APK admin (sans mail ni SMS).</p>
 </div>
 </div>
-<div id="splash"><img src="images/icon.svg" class="logo" alt=""><h1>Etude incendie</h1><p>by Kevin — v28 sapiteur</p></div>
+<div id="splash"><img src="images/icon.svg" class="logo" alt=""><h1>Etude incendie</h1><p>by Kevin — v29 prédictif</p></div>
 <div id="updateBanner" class="update-banner"></div>
 
 <header class="app-header" id="appHeader"><div class="header-content">
 <img src="images/icon.svg" alt="" class="header-logo" onerror="this.style.display='none'">
-<div><h1>🔥 Etude incendie by Kevin</h1><p class="subtitle">v28 • 12 familles × 45 marques • Causes & conséquences sapiteur • Admin obligatoire</p></div>
+<div><h1>🔥 Etude incendie by Kevin</h1><p class="subtitle">v29 • Prédictif marque/modèle/motorisation • 12 familles • 45 marques</p></div>
 </div></header>
 
 <section id="adminPanel" class="search-section" style="display:none;border-top:4px solid #2e7d32">
@@ -49,13 +49,15 @@
 
 <section class="search-section garage-box">
 <h2 style="margin-top:0">🔎 Recherche unifiée prédictive</h2>
-<p style="opacity:.8;font-size:.85rem;margin-bottom:.6rem">« byd han fuite fluide » • « ford f-150 échauffement » • « renault clio surcharge » • « skoda octavia court-circuit »</p>
+<p style="opacity:.8;font-size:.85rem;margin-bottom:.6rem">« byd han fuite fluide » • « ford f-150 échauffement » • « foyer zone départ »</p>
 <div class="ac-wrap" style="position:relative">
 <input id="unifiedInput" autocomplete="off" placeholder="Marque, modèle, motorisation, panne… (prédictions cliquables)" style="font-size:1.1rem;padding:1rem">
 <div id="unifiedPredict" class="ac-box" style="display:none"></div>
 </div>
 <div id="unifiedResults" style="margin-top:1rem"></div>
 </section>
+
+<!-- La section 🔎 PRÉDICTIVE PAR CRITÈRE est injectée par js/predict-v29.js -->
 
 <div id="connectionStatus" class="connection-status online"><span class="status-text">En ligne</span></div>
 
@@ -83,7 +85,7 @@
 <div class="rs-box"><label>⛽ GPL</label><input id="q-lpg"><button class="rs-btn" data-energy="lpg">Chercher</button></div>
 </div><p id="recallStats" class="ve-intro"></p><div class="causes-grid" id="recallGrid"></div></section>
 
-<section><h2>📋 Fiches techniques origine de feu</h2><p class="ve-intro">Injectées automatiquement : 10 thermiques + 10 VE/HT — chaque modale v28 ajoute causes possibles & conséquences sapiteur.</p></section>
+<section><h2>📋 Fiches techniques origine de feu</h2><p class="ve-intro">10 thermiques + 10 VE/HT — modales 8 rubriques (causes & conséquences sapiteur).</p></section>
 <section id="section-fo-zone" style="border-top:4px solid #d32f2f"><h2>🎯 Déterminer la ZONE DE DÉPART (foyer)</h2><div class="method-steps" id="fo-zone"></div></section>
 <section id="section-fo-ev" style="border-top:4px solid #7c4dff"><h2>🔋 Feu VE : départ & propagation</h2><div id="fo-ev" class="runaway-phases"></div></section>
 <section id="section-fo-compare" style="border-top:4px solid #ff6f00"><h2>⚖️ ÉLECTRIQUE vs MÉCANIQUE vs FLUIDE</h2><div id="fo-compare"></div></section>
@@ -111,7 +113,7 @@
 <section><h2>📷 Galerie photos réelles</h2><div class="gallery-grid" id="photoGallery"></div></section>
 
 <section class="storage-info"><div class="storage-card">
-<h3>💾 Base locale massive v28 + MAJ mensuelle</h3>
+<h3>💾 Base locale massive v29 + MAJ mensuelle</h3>
 <p id="storageStatus">Init...</p><p id="feedInfo" class="feed-info"></p>
 <button id="syncNowBtn" class="btn-offline">🔄 MAJ maintenant</button>
 <button id="offlinePhotosBtn" class="btn-offline">📥 Photos hors ligne</button>
@@ -133,7 +135,7 @@
 <p id="adminMsg"></p>
 </div></section>
 
-<footer class="app-footer"><p>© 2026 Etude incendie by Kevin</p><p class="version">v28 • Sapiteur automobile • 12 familles × 45 marques • Causes & conséquences</p></footer>
+<footer class="app-footer"><p>© 2026 Etude incendie by Kevin</p><p class="version">v29 • Prédictif marque/modèle/motorisation • Sapiteur • MAJ mensuelle</p></footer>
 
 <div id="lightbox" class="lightbox hidden"><button class="lightbox-close" onclick="closeLightbox()">×</button><img id="lightboxImg" src="" alt=""><p id="lightboxCaption" class="lightbox-caption"></p><p id="lightboxCredit" class="lightbox-credit"></p></div>
 
@@ -144,6 +146,7 @@
 <script src="js/fiches-techniques.js"></script>
 <script src="js/cross-brand-db.js"></script>
 <script src="js/expert-v28.js"></script>
+<script src="js/predict-v29.js"></script>
 <script>
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('service-worker.js'));
 (function(){let d=false;function h(){if(d)return;d=true;const s=document.getElementById('splash');if(s){s.classList.add('hidden');setTimeout(()=>s.remove(),700);}}
