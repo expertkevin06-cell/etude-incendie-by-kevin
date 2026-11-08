@@ -1,8 +1,8 @@
-<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Autodiagnostic v29</title>
+<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Autodiagnostic v30</title>
 <style>body{font-family:'Segoe UI',sans-serif;background:#111;color:#eee;padding:1.5rem;max-width:800px;margin:auto}h1{color:#4caf50}td{padding:.5rem;border-bottom:1px solid #333;font-size:.85rem}.ok{color:#4caf50;font-weight:700}.ko{color:#ff5252;font-weight:700}.warn{color:#ffb300;font-weight:700}#verdict{margin:1rem 0;padding:1rem;border-radius:8px;font-weight:700}button{padding:.8rem 1.5rem;background:#4caf50;border:none;border-radius:8px;font-weight:700;cursor:pointer}pre{background:#222;padding:1rem;border-radius:8px;overflow:auto;font-size:.75rem}</style></head><body>
-<h1>🩺 Autodiagnostic v29 (prédictif par critère)</h1><button onclick="run()">▶ LANCER</button><div id="verdict"></div><div id="out"></div><pre id="report"></pre>
+<h1>🩺 Autodiagnostic v30 (dossier technique prédictif)</h1><button onclick="run()">▶ LANCER</button><div id="verdict"></div><div id="out"></div><pre id="report"></pre>
 <script>
-const JS=['js/data.js','js/engine.js','js/search-v25.js','js/app.js','js/fiches-techniques.js','js/cross-brand-db.js','js/expert-v28.js','js/predict-v29.js'];
+const JS=['js/data.js','js/engine.js','js/search-v25.js','js/app.js','js/fiches-techniques.js','js/cross-brand-db.js','js/expert-v28.js','js/predict-v30.js'];
 const CORE=['index.html','manifest.json','service-worker.js','css/styles.css'].concat(JS,['images/icon.svg','data/recalls-feed.json','tools/fetch-recalls.mjs','.github/workflows/monthly-recalls.yml']);
 const SECRET_RE=/Kevin\s?\d{4,6}/i;
 let LOG=[];const line=(ok,t)=>{LOG.push((ok==='OK'?'[OK] ':'[KO] ')+t);return `<tr><td class="${ok==='OK'?'ok':ok==='WARN'?'warn':'ko'}">${ok}</td><td>${t}</td></tr>`;};
@@ -13,25 +13,26 @@ for(const f of CORE){const s=await st(f);if(s!==200)ko++;rows+=line(s===200?'OK'
 for(const f of JS){const src=await fetch(f,{cache:'no-store'}).then(r=>r.text()).catch(()=>'');
  try{new Function(src);rows+=line('OK','SYNTAXE '+f);}catch(e){ko++;rows+=line('KO','SYNTAXE '+f+' : '+e.message);}
  if(SECRET_RE.test(src)){ko++;rows+=line('KO','⚠️ CLAIR SUSPECT dans '+f);}}
-const pv=await fetch('js/predict-v29.js',{cache:'no-store').then(r=>r.text()).catch(()=>'');
-rows+=line(pv.includes('__p29')&&pv.includes('pBrand')&&pv.includes('pModel')&&pv.includes('pMotor')?'OK':'KO','3 champs prédictifs indépendants (marque/modèle/motorisation)');
-rows+=line(pv.includes('p29AllModels')&&pv.includes('p29AllMotors')?'OK':'KO','Suggestions modèles & motorisations TOUTES marques');
-rows+=line(pv.includes('p29Auto')&&pv.includes('setTimeout(p29Render,300)')?'OK':'KO','Résultats temps réel (debounce 300 ms)');
+const pv=await fetch('js/predict-v30.js',{cache:'no-store').then(r=>r.text()).catch(()=>'');
+rows+=line(pv.includes('__p30')&&pv.includes('p30Dossier')&&pv.includes('p30ModelMatch')?'OK':'KO','Moteur prédictif v30 + DOSSIER technique');
+rows+=line(pv.includes('runUnifiedNow=function')?'OK':'KO','Dossier injecté aussi dans la recherche unifiée');
+rows+=line(!pv.includes('predict-v29')?'OK':'KO','Aucune dépendance v29');
 const idx=await fetch('index.html',{cache:'no-store').then(r=>r.text()).catch(()=>'');
-rows+=line(idx.includes('js/predict-v29.js')?'OK':'KO','index charge predict-v29.js');
+rows+=line(idx.includes('js/predict-v30.js')&&!idx.includes('predict-v29.js')?'OK':'KO','index charge predict-v30 (v29 retiré)');
 const eng=await fetch('js/engine.js',{cache:'no-store').then(r=>r.text()).catch(()=>'');
-rows+=line(eng.includes('ADMIN_HASH:3615734019')&&!SECRET_RE.test(eng)&&h32('Kevin83600')===3615734019?'OK':'KO','Admin Kevin83600 (hash, aucun clair)');
+rows+=line(eng.includes('ADMIN_HASH:3615734019')&&!SECRET_RE.test(eng)&&h32('Kevin83600')===3615734019?'OK':'KO','Admin Kevin83600 (hash vérifié)');
 const sw=await fetch('service-worker.js',{cache:'no-store').then(r=>r.text()).catch(()=>'');
-rows+=line(/etude-v2[9]/.test((sw.match(/CACHE='([^']+)'/)||[])[1]||'')||/etude-v3/.test((sw.match(/CACHE='([^']+)'/)||[])[1]||'')?'OK':'KO','Cache SW : '+((sw.match(/CACHE='([^']+)'/)||[])[1]||'?'));
-const m=await fetch('manifest.json',{cache:'no-store').then(r=>r.json()).catch(()=>null);
+rows+=line(/etude-v3/.test((sw.match(/CACHE='([^']+)'/)||[])[1]||'')?'OK':'KO','Cache SW : '+((sw.match(/CACHE='([^']+)'/)||[])[1]||'?'));
+const m=await fetch('manifest.json',{cache:'no-store'}).then(r=>r.json()).catch(()=>null);
 if(m){rows+=line(m.name==='Etude incendie by Kevin'?'OK':'KO','Manifest = '+m.name);}else{ko++;rows+=line('KO','manifest illisible');}
 let swr='KO';if(navigator.serviceWorker){const r=await navigator.serviceWorker.getRegistration();swr=r&&r.active?'OK':'KO';}if(swr==='KO')ko++;
 rows+=line(swr,'Service Worker actif');
-let pt=null;try{pt=JSON.parse(localStorage.getItem('predictTest29')||'null');}catch(e){}
-if(pt&&pt.elroq>0&&pt.tdi>0&&pt.renault>0)rows+=line('OK','TEST prédictif : Elroq='+pt.elroq+' | 2.0 tdi='+pt.tdi+' | Renault='+pt.renault);
-else rows+=line('WARN','TEST prédictif : ouvrez l\'app d\'abord');
+let pt=null;try{pt=JSON.parse(localStorage.getItem('predictTest30')||'null');}catch(e){}
+if(pt&&pt.elroq>10&&pt.dossier===true&&pt.tdi>0&&pt.renault>0&&pt.f150>0)rows+=line('OK','TEST v30 : Elroq='+pt.elroq+' (dossier OK) | 2.0tdi='+pt.tdi+' | Renault='+pt.renault+' | F-150='+pt.f150);
+else if(pt)rows+=line('KO','TEST v30 incomplet : '+JSON.stringify(pt)+' → rouvrez l\'app');
+else rows+=line('WARN','TEST v30 : ouvrez l\'app une fois (auto-test au boot)');
 document.getElementById('out').innerHTML='<table>'+rows+'</table>';
 const v=document.getElementById('verdict');
-if(ko===0){v.style.background='#1b5e20';v.textContent='✅ CONFORME v29 : recherche prédictive marque/modèle/motorisation opérationnelle.';}else{v.style.background='#b71c1c';v.textContent='❌ '+ko+' anomalie(s).';}
+if(ko===0){v.style.background='#1b5e20';v.textContent='✅ CONFORME v30 : ELROQ (et tout modèle/marque/motorisation) présente DOSSIER + fiches.';}else{v.style.background='#b71c1c';v.textContent='❌ '+ko+' anomalie(s).';}
 document.getElementById('report').textContent=LOG.join('\n');}
 </script></body></html>
