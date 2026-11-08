@@ -1,5 +1,6 @@
 // ================================================================
-// ETUDE INCENDIE BY KEVIN — engine.js : recherches, accès, MAJ, partage
+// ETUDE INCENDIE BY KEVIN — engine.js v24
+// Recherches + accès sécurisés (admin obligatoire / tiers contrôlé) + MAJ + partage
 // ================================================================
 function seNorm(s){return String(s==null?'':s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
 var SE_SYN={huile:['oil','lubrifiant'],oil:['huile'],carburant:['fuel','essence','gazole','diesel'],fuel:['carburant'],fuite:['leak'],leak:['fuite'],batterie:['battery'],battery:['batterie'],court:['court-circuit','short','arc'],short:['court-circuit'],incendie:['fire','feu'],fire:['incendie'],faisceau:['harness','cablage'],harness:['faisceau'],fusible:['fuse'],fuse:['fusible'],embrasement:['runaway'],runaway:['embrasement'],perle:['bead','perlage'],bead:['perle'],echappement:['exhaust','collecteur'],catalyseur:['cata'],charge:['charging','ccs'],cosse:['borne','terminal']};
@@ -16,7 +17,6 @@ function seSearch(q,facets){var toks=seExpand(q);if(!toks.length)return{recalls:
  var wires=[];Object.keys(FIRE_DATABASE.wireAnalysis).forEach(function(k){var w=FIRE_DATABASE.wireAnalysis[k];var s=seScore(w.title+' '+w.identification+w.characteristics.join(' '),toks);if(s>0)wires.push({w:w,s:s});});wires.sort(function(a,b){return b.s-a.s;});
  var metals=[];FIRE_DATABASE.metals.forEach(function(m){var s=seScore(m.name+' '+m.appearance,toks);if(s>0)metals.push({m:m,s:s});});metals.sort(function(a,b){return b.s-a.s;});
  return{recalls:recs.slice(0,20),cases:cases.slice(0,8),wires:wires.slice(0,6),metals:metals.slice(0,6)};}
-// ---- Recherche unifiée prédictive ----
 var PANNE_KEYWORDS={'courroie':'belt','belt':'belt','fap':'dpf','dpf':'dpf','gpf':'dpf','adblue':'adblue','scr':'adblue','turbo':'turbo','egr':'egr','carburant':'fuel','fuel':'fuel','lpg':'fuel','gpl':'fuel','puissance':'mech','court-circuit':'elec','short':'elec','electrique':'elec','incendie':'fire','feu':'fire','fire':'fire','charge':'charge','charging':'charge','batterie':'batt','battery':'batt','12v':'elec','48v':'elec','ht':'batt','hv':'batt','camera':'camera','adas':'adas','fuite':'leak','leak':'leak','eau':'leak','surchauffe':'overheat','overheat':'overheat','boite':'gearbox','gearbox':'gearbox','frein':'mech','pneu':'mech','logiciel':'software','ota':'software','foyer':'fire','origine':'fire'};
 var ENERGY_KW={'thermique':'thermal','thermal':'thermal','essence':'thermal','diesel':'thermal','electrique':'ev','ev':'ev','bev':'ev','hybride':'hybrid','hybrid':'hybrid','phev':'hybrid','mhev':'hybrid','48v':'hybrid','gpl':'lpg','lpg':'lpg','eco-g':'lpg'};
 function usTokenize(q){var toks=seNorm(q).split(/[\s,;]+/).filter(function(t){return t.length>0;});var res={brands:[],models:[],pannes:[],energies:[],free:[]};
@@ -41,7 +41,6 @@ function usPredictions(q){var n=seNorm(q);if(!n)return[];var sug=[];
  Object.keys(VEHICLE_CATALOG||{}).forEach(function(br){Object.keys(VEHICLE_CATALOG[br]||{}).forEach(function(m){if(seNorm(m).indexOf(n)>=0)sug.push({type:'modèle',val:m+' ('+cap15(br)+')'});});});
  Object.keys(PANNE_KEYWORDS).forEach(function(k){if(k.indexOf(n)>=0)sug.push({type:'panne',val:k});});
  return sug.slice(0,12);}
-// ---- Multi-sources live ----
 var MS_LINKS=[{l:'Rappel Conso',u:'https://rappel.conso.gouv.fr/#/recherche?search=%Q%'},{l:'Safety Gate EU',u:'https://ec.europa.eu/safety-gate-alerts/screen/webReport?search=%Q%'},{l:'NHTSA',u:'https://www.nhtsa.gov/recalls?keyword=%Q%'},{l:'CarComplaints',u:'https://www.google.com/search?q=site:carcomplaints.com+%Q%+fire'},{l:'Consumer Reports',u:'https://www.google.com/search?q=site:consumerreports.org+%Q%+fire'},{l:'IIHS',u:'https://www.google.com/search?q=site:iihs.org+%Q%+fire'},{l:'Which? UK',u:'https://www.google.com/search?q=site:which.co.uk+%Q%+fire'},{l:'ADAC DE',u:'https://www.google.com/search?q=site:adac.de+%Q%+Brand'},{l:'AutoBild DE',u:'https://www.google.com/search?q=site:autobild.de+%Q%+Brand'},{l:'Transport Canada',u:'https://www.google.com/search?q=site:canada.ca+recall+fire+%Q%'},{l:'SafeCar AU',u:'https://www.google.com/search?q=site:safecar.gov.au+fire+%Q%'},{l:'L’Argus',u:'https://www.google.com/search?q=site:largus.fr+%Q%+incendie'},{l:'Caradisiac',u:'https://www.google.com/search?q=site:caradisiac.com+%Q%+incendie'},{l:'Auto-Journal',u:'https://www.google.com/search?q=site:autojournal.fr+%Q%+incendie'},{l:'Turbo.fr',u:'https://www.google.com/search?q=site:turbo.fr+%Q%+incendie'},{l:'Auto-Moto',u:'https://www.google.com/search?q=site:auto-moto.com+%Q%+incendie'},{l:'60 Millions',u:'https://www.google.com/search?q=site:60millions-mag.com+%Q%+incendie'},{l:'Que Choisir',u:'https://www.google.com/search?q=site:quechoisir.org+%Q%+incendie'},{l:'UFC forum',u:'https://www.google.com/search?q=site:forum.quechoisir.org+%Q%+incendie'},{l:'Automobile Mag',u:'https://www.google.com/search?q=site:automobile-magazine.fr+%Q%+incendie'},{l:'Reddit Mechanic',u:'https://www.google.com/search?q=site:reddit.com+r/MechanicAdvice+%Q%+fire'},{l:'NFPA forensique',u:'https://www.google.com/search?q=%Q%+vehicle+fire+investigation'},{l:'Google tous sites',u:'https://www.google.com/search?q=%Q%+rappel+incendie+vehicule'},{l:'Forum mécanique',u:'https://www.google.com/search?q=site:forum-mecanique.com+%Q%+incendie'}];
 var MS_FIRE=/incendie|feu|fire|smoke|fum[eé]e|burn|melt|fondu|runaway|embrasement/i;
 function lsAbort(ms){var c=new AbortController();setTimeout(function(){c.abort();},ms||8000);return c.signal;}
@@ -58,11 +57,9 @@ async function msConso(q){var out=[];try{var d=await fetch('https://www.data.gou
  return out;}
 async function msRun(q,render){if(!q)return;var local=unifiedSearch(q);var apis=await Promise.all([msNhtsa(q),msConso(q)]);
  render({q:q,local:local,api:apis[0].concat(apis[1]),sites:MS_LINKS.map(function(s){return{l:s.l,u:s.u.replace('%Q%',encodeURIComponent(q))};})});}
-// ---- IndexedDB helpers ----
 function idbGet(db,s,k){return new Promise(function(res){try{var t=db.transaction([s],'readonly');var q=t.objectStore(s).get(k);q.onsuccess=function(){res(q.result);};q.onerror=function(){res(null);};}catch(e){res(null);}});}
 function idbPut(db,s,v){return new Promise(function(res){try{var t=db.transaction([s],'readwrite');t.objectStore(s).put(v);t.oncomplete=function(){res(true);};t.onerror=function(){res(false);};}catch(e){res(false);}});}
 function idbDel(db,s,k){return new Promise(function(res){try{var t=db.transaction([s],'readwrite');t.objectStore(s).delete(k);t.oncomplete=function(){res(true);};}catch(e){res(false);}});}
-// ---- MAJ mensuelle feed ----
 var FEED_URL='data/recalls-feed.json',MONTH_MS=30*24*3600*1000;
 function normFeed(c){return{id:c.id,brand:c.brand||'-',models:c.models||'-',years:c.years||'-',energy:['thermal','ev','hybrid','lpg'].indexOf(c.energy)>=0?c.energy:'thermal',motor:c.motor||'-',region:c.region||'-',src:c.src||'Feed',ref:c.ref||'-',cause:c.cause||'-',mech:c.mech||'Mécanisme à documenter',idx:c.idx||'Cartographie fusion + perles',subsys:c.subsys||'',power:c.power||'',photos:(c.photos&&c.photos.length?c.photos:['engine_burnt'])};}
 function dedupeKey(c){return String(c.brand+'|'+c.cause).toLowerCase().slice(0,80);}
@@ -85,11 +82,24 @@ async function registerPeriodicSync(){try{if(!('periodicSync' in navigator))retu
  var reg=await navigator.serviceWorker.ready;var p=await navigator.permissions.query({name:'periodic-background-sync'}).catch(function(){return{state:'denied'};});
  if(p.state!=='granted')return 'permission non accordée';
  await reg.periodicSync.register('monthly-recalls',{minInterval:MONTH_MS});return 'actif (30 j)';}catch(e){return 'erreur';}}
-// ---- CONTRÔLE D'ACCÈS (admin hash-only + tiers ntfy) ----
-var AC={REQ_TOPIC:'etude-incendie-req-83600',DEC_TOPIC:'etude-incendie-dec-83600',UPD_TOPIC:'etude-incendie-upd-83600',NTFY:'https://ntfy.sh',ADMIN_HASH:3615734019,state:null,requests:[],pollTimer:null,netTimer:null,tries:0,lockUntil:0};
+// ================================================================
+// CONTRÔLE D'ACCÈS v24 — admin obligatoire à chaque ouverture (session)
+// tiers : uniquement par validation admin + vérification en ligne
+// ================================================================
+var AC={REQ_TOPIC:'etude-incendie-req-83600',DEC_TOPIC:'etude-incendie-dec-83600',UPD_TOPIC:'etude-incendie-upd-83600',NTFY:'https://ntfy.sh',ADMIN_HASH:3615734019,GRANT_WINDOW:7*24*3600*1000,state:null,requests:[],pollTimer:null,netTimer:null,tries:0,lockUntil:0};
 function acHash(s){var h=5381;for(var i=0;i<s.length;i++){h=(Math.imul(h,33)+s.charCodeAt(i))|0;}return h>>>0;}
 function acDevice(){var d=localStorage.getItem('acDevice');if(!d){d='dev-'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);localStorage.setItem('acDevice',d);}return d;}
-function acLoad(){try{AC.state=JSON.parse(localStorage.getItem('acState')||'null')||{role:'locked',name:''};}catch(e){AC.state={role:'locked',name:''};}return AC.state;}
+function acGetGrant(){try{return JSON.parse(localStorage.getItem('acGrant')||'null');}catch(e){return null;}}
+function acSaveGrant(g){localStorage.setItem('acGrant',JSON.stringify(g));}
+function acClearGrant(){localStorage.removeItem('acGrant');}
+function acLoad(){
+ var sess=null;try{sess=JSON.parse(sessionStorage.getItem('acSession')||'null');}catch(e){}
+ if(sess&&sess.role==='admin'){AC.state={role:'admin',name:'Kevin',since:sess.ts};return AC.state;}
+ var grant=acGetGrant();
+ if(grant&&grant.device===acDevice()){AC.state={role:'granted',name:grant.name,device:grant.device,since:grant.since,lastVerify:grant.lastVerify||0,grant:grant};return AC.state;}
+ var st=null;try{st=JSON.parse(localStorage.getItem('acState')||'null');}catch(e){}
+ if(st&&st.role==='pending'){AC.state={role:'pending',name:st.name,device:acDevice(),since:st.since};return AC.state;}
+ AC.state={role:'locked',name:''};return AC.state;}
 function acSave(){localStorage.setItem('acState',JSON.stringify(AC.state));}
 function acUnlocked(){return !!(AC.state&&(AC.state.role==='admin'||AC.state.role==='granted'));}
 AC.banner=function(t){var b=document.getElementById('updateBanner');if(b){b.textContent=t;b.classList.add('show');setTimeout(function(){b.classList.remove('show');},9000);}};
@@ -102,14 +112,32 @@ async function acRequest(name){if(!name||name.length<2){AC.banner('⚠️ Indiqu
  var dev=acDevice();var ok=await acPub(AC.REQ_TOPIC,{device:dev,name:name,ts:Date.now(),ua:(navigator.userAgent||'').slice(0,60)});
  AC.state={role:'pending',name:name,device:dev,since:Date.now()};acSave();acApplyGate();acStartPolling();
  AC.banner(ok?'📨 Demande envoyée à l’admin ('+name+')':'⚠️ Réseau indisponible — réessayez');}
-async function acCheckDecisions(){var evs=await acPoll(AC.DEC_TOPIC,AC.state&&AC.state.since?Math.floor(AC.state.since/1000)-120:'all');
+async function acCheckDecisions(){
+ var since=AC.state&&AC.state.since?Math.floor(AC.state.since/1000)-120:'all';
+ var evs=await acPoll(AC.DEC_TOPIC,since);
  evs.forEach(function(ev){var d=acParse(ev);if(!d||d.device!==acDevice())return;
-  if(d.status==='approved'){AC.state={role:'granted',name:d.name||AC.state.name,device:acDevice(),since:Date.now()};acSave();acNotify('✅ Accès accordé','Bienvenue '+AC.state.name);acApplyGate();}
-  else if(d.status==='refused'){AC.state={role:'locked',name:'',since:Date.now()};acSave();acNotify('❌ Accès refusé','Par l’administrateur');acApplyGate();}
-  else if(d.status==='revoked'){AC.state={role:'locked',name:'',since:Date.now()};acSave();acNotify('⛔ Accès révoqué','Par l’administrateur');acApplyGate();}});}
+  if(d.status==='approved'){var g={device:acDevice(),name:d.name||AC.state.name,since:Date.now(),lastVerify:Date.now()};acSaveGrant(g);
+   AC.state={role:'granted',name:g.name,device:g.device,since:g.since,lastVerify:g.lastVerify,grant:g};acSave();
+   acNotify('✅ Accès accordé','Bienvenue '+g.name);acApplyGate();}
+  else if(d.status==='refused'){acClearGrant();AC.state={role:'locked',name:''};acSave();acNotify('❌ Accès refusé','Par l’administrateur');acApplyGate();}
+  else if(d.status==='revoked'){acClearGrant();try{sessionStorage.removeItem('acSession');}catch(e){}AC.state={role:'locked',name:''};acSave();acNotify('⛔ Accès révoqué','Par l’administrateur');acApplyGate();}});}
+async function acBootVerify(){
+ if(AC.state.role==='admin')return true;
+ if(AC.state.role!=='granted')return false;
+ var grant=AC.state.grant||acGetGrant();
+ if(!grant){AC.state={role:'locked',name:''};acApplyGate();return false;}
+ if(!navigator.onLine){
+  if(Date.now()-(grant.lastVerify||0)>AC.GRANT_WINDOW){AC.state={role:'locked',name:'',reason:'verify'};acApplyGate();AC.banner('🔐 Accès tiers : connexion en ligne requise pour vérification');return false;}
+  AC.banner('🔓 Accès tiers hors-ligne (vérifié le '+new Date(grant.lastVerify||grant.since).toLocaleDateString('fr-FR')+')');return true;}
+ var evs=await acPoll(AC.DEC_TOPIC,Math.floor((grant.since||0)/1000)-60);
+ var revoked=evs.some(function(ev){var d=acParse(ev);return d&&d.device===grant.device&&d.status==='revoked'&&d.ts>=(grant.since||0);});
+ if(revoked){acClearGrant();AC.state={role:'locked',name:''};acSave();acApplyGate();acNotify('⛔ Accès révoqué','Par l’administrateur');return false;}
+ grant.lastVerify=Date.now();acSaveGrant(grant);AC.state.lastVerify=grant.lastVerify;
+ console.log('✅ Accès tiers vérifié en ligne');return true;}
 async function acAdminLogin(pw){if(Date.now()<AC.lockUntil){AC.banner('⛔ Trop de tentatives — verrou actif');return false;}
  var ok=acHash(String(pw||''))===AC.ADMIN_HASH;var input=document.getElementById('gatePwd');if(input)input.value='';
- if(ok){AC.tries=0;AC.state={role:'admin',name:'Kevin',since:Date.now()};acSave();acAskNotif();acApplyGate();acStartPolling();return true;}
+ if(ok){AC.tries=0;try{sessionStorage.setItem('acSession',JSON.stringify({role:'admin',ts:Date.now()}));}catch(e){}
+  AC.state={role:'admin',name:'Kevin',since:Date.now()};acAskNotif();acApplyGate();acStartPolling();return true;}
  AC.tries++;if(AC.tries>=5){AC.lockUntil=Date.now()+30000;AC.tries=0;AC.banner('⛔ 5 échecs — verrou 30 s');}return false;}
 async function acAdminRefresh(){var evs=await acPoll(AC.REQ_TOPIC,'all');var map={};
  evs.forEach(function(ev){var d=acParse(ev);if(d&&d.device)map[d.device]=d;});
@@ -133,12 +161,18 @@ async function acCheckUpdate(){if(AC.state&&AC.state.role==='admin')return;
  if(last.approvedForTiers){localStorage.setItem('acApprovedVersion',last.version);acNotify('🔄 MAJ v'+last.version,'Approuvée par l’admin — rechargement…');setTimeout(function(){window.location.reload(true);},3000);}
  else acNotify('🔄 MAJ v'+last.version+' disponible','En attente validation admin');}
 function acApplyGate(){var g=document.getElementById('gateOverlay');if(!g)return;
- if(acUnlocked()){g.style.display='none';document.body.classList.remove('locked');
+ if(AC.state.role==='admin'||AC.state.role==='granted'){g.style.display='none';document.body.classList.remove('locked');
   var ap=document.getElementById('adminPanel');if(ap)ap.style.display=(AC.state.role==='admin')?'block':'none';
   if(AC.state.role==='admin')acAdminRefresh();}
  else{g.style.display='flex';document.body.classList.add('locked');
-  var st=document.getElementById('gateStatus');if(st)st.textContent=(AC.state.role==='pending')?'⏳ Demande envoyée ('+AC.state.name+') — en attente…':'🔒 Application protégée';
+  var st=document.getElementById('gateStatus');
+  if(st)st.textContent=AC.state.role==='pending'?'⏳ Demande envoyée ('+(AC.state.name||'')+') — en attente de validation admin…':(AC.state.reason==='verify'?'🔐 Accès tiers : vérification en ligne requise':'🔒 Mot de passe admin obligatoire à chaque ouverture — ou demande d’accès tiers');
   var p=document.getElementById('gatePwd');if(p){p.value='';p.placeholder='Mot de passe';}}}
+function acInjectNotes(){var card=document.querySelector('.gate-card');if(!card||card.dataset.v24)return;card.dataset.v24='1';
+ var b=document.getElementById('gateAdminBtn');
+ if(b){var n1=document.createElement('p');n1.style.cssText='font-size:.75rem;opacity:.85;margin-top:.4rem';n1.textContent='⚠️ Mot de passe exigé à CHAQUE ouverture (session non conservée).';b.parentNode.insertBefore(n1,b.nextSibling);}
+ var q=document.getElementById('gateReqBtn');
+ if(q){var n2=document.createElement('p');n2.style.cssText='font-size:.75rem;opacity:.85;margin-top:.4rem';n2.textContent='🔐 Tiers : usage uniquement après validation admin • vérification en ligne à chaque ouverture • révocation possible à tout moment.';q.parentNode.insertBefore(n2,q.nextSibling);}}
 function acStartPolling(){if(AC.pollTimer)return;AC.pollTimer=setInterval(function(){if(!navigator.onLine)return;
  if(AC.state&&AC.state.role==='admin')acAdminRefresh();
  else if(AC.state&&(AC.state.role==='pending'||AC.state.role==='granted')){acCheckDecisions();acCheckUpdate();}},15000);}
@@ -146,14 +180,15 @@ function acNetWatch(){if(AC.netTimer)return;AC.netTimer=setInterval(function(){v
  if(!navigator.onLine){el.className='connection-status offline';el.innerHTML='<span class="status-text">Hors ligne — base locale</span>';return;}
  fetch('./',{method:'HEAD',cache:'no-store'}).then(function(r){el.className='connection-status online';el.innerHTML='<span class="status-text">📶 4G/5G/WiFi actif</span>';
   if(window.app&&app.db&&r.ok)syncRecallsFeed(app.db,false).then(function(x){if(x&&x.added){AC.banner('🔄 Feed : +'+x.added+' cas');if(typeof renderRecalls==='function')renderRecalls(RECALLS.slice(0,60));}});}).catch(function(){el.className='connection-status offline';el.innerHTML='<span class="status-text">Réseau instable — base locale</span>';});},15000);}
-// ---- Partage APK par mail ----
 function apkShareMail(){var url=location.origin+location.pathname.replace(/index\.html$/,'').replace(/tools\/$/,'');
  var subject=encodeURIComponent('📱 Etude incendie by Kevin — APK');
- var body=encodeURIComponent('Bonjour,\n\nApplication Etude incendie by Kevin :\n'+url+'\n\n📲 Android : ouvrir dans Chrome → Menu ⋮ → Installer l’application\n💻 Windows / iOS : même lien → bouton installer\n\n🔐 Accès : demande via l’app (notification admin) ou mot de passe admin.\nBase locale massive + MAJ mensuelle + 24 sources live.\n\n— Kevin');
+ var body=encodeURIComponent('Bonjour,\n\nApplication Etude incendie by Kevin :\n'+url+'\n\n📲 Android : ouvrir dans Chrome → Menu ⋮ → Installer l’application\n💻 Windows / iOS : même lien → bouton installer\n\n🔐 Accès : mot de passe admin OBLIGATOIRE à chaque ouverture, ou demande d’accès validée par l’admin (notification directe, sans mail ni SMS).\nBase locale massive + MAJ mensuelle validée admin + 24 sources live.\n\n— Kevin');
  window.location.href='mailto:?subject='+subject+'&body='+body;}
-// ---- Gemini ----
 var GEMINI_API_KEY='VOTRE_CLE_API_GEMINI';
 async function geminiSearch(query){var ctx='MÉTAUX : '+FIRE_DATABASE.metals.map(function(m){return m.name+' '+m.meltingPointC+'°C';}).join(', ')+' | CAS : '+RECALLS.slice(-15).map(function(r){return r.brand+' '+r.cause;}).join(' ; ');
  var r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+GEMINI_API_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:'Expert incendie véhicule/bâtiment. CONTEXTE : '+ctx+'\nQUESTION : '+query+'\nRéponds en français technique (T°, aspects, indices).'}]}]})});
  if(!r.ok)throw new Error('API '+r.status);var d=await r.json();return d.candidates[0].content.parts[0].text;}
-console.log('✅ engine.js chargé');
+document.addEventListener('DOMContentLoaded',function(){acLoad();acInjectNotes();acApplyGate();
+ acBootVerify().then(function(ok){if(ok)acApplyGate();});
+ acStartPolling();acNetWatch();acAskNotif();
+ console.log('✅ engine v24 : admin obligatoire/session + tiers contrôlé (vérif en ligne, fenêtre 7 j)');});
