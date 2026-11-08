@@ -1,5 +1,5 @@
-const CACHE='etude-v29',DYN='etude-dyn-v29';
-const CORE=['./','./index.html','./manifest.json','./css/styles.css','./js/data.js','./js/engine.js','./js/search-v25.js','./js/app.js','./js/fiches-techniques.js','./js/cross-brand-db.js','./js/expert-v28.js','./js/predict-v29.js','./images/icon.svg','./data/recalls-feed.json'];
+const CACHE='etude-v30',DYN='etude-dyn-v30';
+const CORE=['./','./index.html','./manifest.json','./css/styles.css','./js/data.js','./js/engine.js','./js/search-v25.js','./js/app.js','./js/fiches-techniques.js','./js/cross-brand-db.js','./js/expert-v28.js','./js/predict-v30.js','./images/icon.svg','./data/recalls-feed.json'];
 self.addEventListener('install',e=>{e.waitUntil((async()=>{const c=await caches.open(CACHE);await Promise.allSettled(CORE.map(u=>c.add(u).catch(()=>null)));self.skipWaiting();})());});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE&&k!==DYN).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
 self.addEventListener('periodicsync',e=>{if(e.tag==='monthly-recalls'){e.waitUntil((async()=>{try{
