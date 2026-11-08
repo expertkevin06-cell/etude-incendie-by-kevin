@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="Etude incendie by Kevin : base experte incendies véhicules/bâtiments, foyer & origine, feu VE, rappels 2018-2026, MAJ mensuelle">
+<meta name="description" content="Etude incendie by Kevin v23 : fiches techniques origine de feu thermique & VE, foyer, rappels 2018-2026, MAJ mensuelle">
 <meta name="theme-color" content="#8f1d2c">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="images/icon.svg">
@@ -30,12 +30,12 @@
 <p style="margin-top:.8rem;font-size:.8rem;opacity:.8">Notification directe sur l’APK admin (sans mail ni SMS).</p>
 </div>
 </div>
-<div id="splash"><img src="images/icon.svg" class="logo" alt=""><h1>Etude incendie</h1><p>by Kevin — base experte</p></div>
+<div id="splash"><img src="images/icon.svg" class="logo" alt=""><h1>Etude incendie</h1><p>by Kevin — v23 fiches techniques</p></div>
 <div id="updateBanner" class="update-banner"></div>
 
 <header class="app-header" id="appHeader"><div class="header-content">
 <img src="images/icon.svg" alt="" class="header-logo" onerror="this.style.display='none'">
-<div><h1>🔥 Etude incendie by Kevin</h1><p class="subtitle">Foyer & origine • Feu VE • Élec VS méca • FAP/cata • Rappels 2018-2026 • MAJ mensuelle</p></div>
+<div><h1>🔥 Etude incendie by Kevin</h1><p class="subtitle">v23 • 20 fiches origine de feu • Foyer • Feu VE • Rappels 2018-2026</p></div>
 </div></header>
 
 <section id="adminPanel" class="search-section" style="display:none;border-top:4px solid #2e7d32">
@@ -49,7 +49,7 @@
 
 <section class="search-section garage-box">
 <h2 style="margin-top:0">🔎 Recherche unifiée — tapez librement</h2>
-<p style="opacity:.8;font-size:.85rem;margin-bottom:.6rem">« renault clio 5 courroie » • « audi q4 obc charge » • « foyer zone départ » • « fap herbe » • « elroq 12v »</p>
+<p style="opacity:.8;font-size:.85rem;margin-bottom:.6rem">« renault clio 5 courroie » • « fiche huile turbo » • « ev1 runaway » • « fap herbe »</p>
 <div class="ac-wrap" style="position:relative">
 <input id="unifiedInput" autocomplete="off" placeholder="Marque, modèle, panne, énergie… (prédictions automatiques)" style="font-size:1.1rem;padding:1rem">
 <div id="unifiedPredict" class="ac-box" style="display:none"></div>
@@ -68,6 +68,8 @@
 <button class="nav-btn" data-filter="equipment">🧪 Chimique / GPL</button>
 </nav>
 <section id="navResults" style="display:none;scroll-margin-top:110px"></section>
+
+<!-- La section 📋 FICHES TECHNIQUES est injectée automatiquement par js/fiches-techniques.js -->
 
 <section id="section-fo-zone" style="border-top:4px solid #d32f2f"><h2>🎯 Déterminer la ZONE DE DÉPART (foyer) sur véhicule</h2><div class="method-steps" id="fo-zone"></div></section>
 <section id="section-fo-ev" style="border-top:4px solid #7c4dff"><h2>🔋 Feu VE : départ batterie & propagation à l’ensemble</h2><div id="fo-ev" class="runaway-phases"></div></section>
@@ -110,7 +112,7 @@
 <section><h2>📷 Galerie photos réelles</h2><div class="gallery-grid" id="photoGallery"></div></section>
 
 <section class="storage-info"><div class="storage-card">
-<h3>💾 Base locale massive + MAJ mensuelle</h3>
+<h3>💾 Base locale massive v23 + MAJ mensuelle</h3>
 <p id="storageStatus">Init...</p><p id="feedInfo" class="feed-info"></p>
 <button id="syncNowBtn" class="btn-offline">🔄 MAJ maintenant</button>
 <button id="offlinePhotosBtn" class="btn-offline">📥 Photos hors ligne</button>
@@ -125,20 +127,21 @@
 <div class="storage-card admin-card">
 <h3>🛠️ ADMIN — fond d’écran PERMANENT + opacité</h3>
 <input type="file" id="adminBg" accept="image/*">
-<label style="display:block;margin:.6rem 0 .2rem;font-size:.9rem">Opacité : <span id="bgOpVal">15</span> % (photo visible en permanence)</label>
+<label style="display:block;margin:.6rem 0 .2rem;font-size:.9rem">Opacité : <span id="bgOpVal">15</span> %</label>
 <input type="range" id="adminBgOpacity" min="0" max="60" value="15" style="width:100%">
 <button id="adminBgApply" class="btn-offline">💾 Enregistrer & appliquer</button>
 <button id="adminBgReset" class="btn-offline">Réinitialiser</button>
 <p id="adminMsg"></p>
 </div></section>
 
-<footer class="app-footer"><p>© 2026 Etude incendie by Kevin</p><p class="version">Base experte • NFPA 921 • ASTM E2929 • NHTSA • Rappel Conso • Safety Gate • SAMR • KBA</p></footer>
+<footer class="app-footer"><p>© 2026 Etude incendie by Kevin</p><p class="version">v23 • 20 fiches origine de feu • NFPA 921 • ASTM E2929 • MAJ mensuelle</p></footer>
 
 <div id="lightbox" class="lightbox hidden"><button class="lightbox-close" onclick="closeLightbox()">×</button><img id="lightboxImg" src="" alt=""><p id="lightboxCaption" class="lightbox-caption"></p><p id="lightboxCredit" class="lightbox-credit"></p></div>
 
 <script src="js/data.js"></script>
 <script src="js/engine.js"></script>
 <script src="js/app.js"></script>
+<script src="js/fiches-techniques.js"></script>
 <script>
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('service-worker.js'));
 (function(){let d=false;function h(){if(d)return;d=true;const s=document.getElementById('splash');if(s){s.classList.add('hidden');setTimeout(()=>s.remove(),700);}}
