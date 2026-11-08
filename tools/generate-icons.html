@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Générateur d'icônes — Etude incendie by Kevin</title>
+<style>
+body{font-family:'Segoe UI',sans-serif;background:#f5f5f5;padding:1.5rem;max-width:900px;margin:auto}
+h1{color:#8f1d2c;font-size:1.4rem}
+.step{background:#fff;border-left:5px solid #8f1d2c;padding:.9rem 1rem;margin:1rem 0;border-radius:8px;font-size:.92rem}
+button{width:100%;padding:1rem;margin:.5rem 0;border:none;border-radius:8px;font-size:1.05rem;font-weight:700;color:#fff;background:#d32f2f;cursor:pointer}
+button:disabled{background:#999}
+label{display:block;background:#fff;border:3px dashed #8f1d2c;border-radius:10px;padding:.8rem;text-align:center;margin:.6rem 0;cursor:pointer;font-size:.9rem}
+#status{font-weight:700;margin:1rem 0;color:#2e7d32}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:.6rem}
+.card{background:#fff;border-radius:8px;padding:.5rem;text-align:center;font-size:.62rem}
+code{background:#eee;padding:2px 6px;border-radius:4px}
+</style>
+</head>
+<body>
+<h1>🔥 Générateur d'icônes — Etude incendie by Kevin</h1>
+<div class="step"><strong>1.</strong> (Facultatif) Placez VOTRE image icône (flamme+véhicule) sinon l'icône intégrée est utilisée.</div>
+<div class="step"><strong>2.</strong> Cliquez : <strong>16 fichiers PNG</strong> (15 tailles + apple-touch-icon) sont téléchargés. Autorisez les téléchargements multiples.</div>
+<div class="step"><strong>3.</strong> Envoyez-les avec <code>tools/upload-icons-github.html</code> (dossier <code>images/</code>).</div>
+<label>🔥 Image ICÔNE personnalisée (optionnel)<input type="file" id="iconFile" accept="image/*" hidden></label>
+<button id="gen">⬇️ GÉNÉRER ET TÉLÉCHARGER LES 16 ICÔNES</button>
+<div id="status"></div>
+<div id="grid"></div>
+<script>
+var SVG="<svg xmlns='http://www.w3.org/2000/svg' width='512' height='512' viewBox='0 0 512 512'><defs><linearGradient id='b' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#8f1d2c'/><stop offset='1' stop-color='#4a0b14'/></linearGradient><linearGradient id='f' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#ffb300'/><stop offset='1' stop-color='#f4511e'/></linearGradient></defs><rect width='512' height='512' rx='110' fill='url(#b)'/><path fill='url(#f)' d='M368 64c8 52 62 78 68 144 4 46-20 86-68 104-48-18-72-58-68-104 4-34 24-54 38-82 6 18 16 28 18 44 10-30 6-68 12-106z'/><path fill='#ffffff' d='M92 348h42l30-46h148l36 46h68a14 14 0 0 1 14 14v32h-42a36 36 0 0 0-72 0H198a36 36 0 0 0-72 0H92a14 14 0 0 1-14-14v-18a14 14 0 0 1 14-14z'/><circle cx='162' cy='394' r='26' fill='#4a0b14'/><circle cx='162' cy='394' r='11' fill='#ffffff'/><circle cx='352' cy='394' r='26' fill='#4a0b14'/><circle cx='352' cy='394' r='11' fill='#ffffff'/><rect x='176' y='312' width='120' height='34' rx='8' fill='#8f1d2c'/></svg>";
+var SIZES=[44,72,96,120,128,144,150,152,167,180,192,310,384,512,1024];
+var customImg=null;
+document.getElementById('iconFile').addEventListener('change',function(e){
+ var f=e.target.files[0];if(!f)return;
+ var img=new Image();img.onload=function(){customImg=img;document.getElementById('status').textContent='✅ Icône personnalisée chargée ('+img.width+'×'+img.height+')';};
+ img.onerror=function(){document.getElementById('status').textContent='❌ Image illisible';};
+ img.src=URL.createObjectURL(f);});
+document.getElementById('gen').addEventListener('click',async function(){
+ var btn=this;btn.disabled=true;
+ var status=document.getElementById('status'),grid=document.getElementById('grid');
+ status.textContent='⏳ Génération…';grid.innerHTML='';
+ try{
+  var img=customImg;
+  if(!img){img=new Image();var url=URL.createObjectURL(new Blob([SVG],{type:'image/svg+xml'}));
+   await new Promise(function(res,rej){img.onload=res;img.onerror=rej;img.src=url;});}
+  var files=[];
+  for(var i=0;i<SIZES.length;i++){var s=SIZES[i];
+   var c=document.createElement('canvas');c.width=s;c.height=s;
+   var ctx=c.getContext('2d');
+   var ratio=Math.max(s/img.width,s/img.height);
+   var w=img.width*ratio,h=img.height*ratio;
+   ctx.drawImage(img,(s-w)/2,(s-h)/2,w,h);
+   files.push({name:'icon-'+s+'x'+s+'.png',url:c.toDataURL('image/png')});}
+  var a180=files.find(function(f){return f.name==='icon-180x180.png';});
+  files.push({name:'apple-touch-icon.png',url:a180.url});
+  for(var j=0;j<files.length;j++){
+   var a=document.createElement('a');a.href=files[j].url;a.download=files[j].name;
+   document.body.appendChild(a);a.click();a.remove();
+   var card=document.createElement('div');card.className='card';
+   card.innerHTML='<img src="'+files[j].url+'" width="56"><br>'+files[j].name;
+   grid.appendChild(card);
+   status.textContent='✅ '+(j+1)+'/'+files.length+' icônes téléchargées…';
+   await new Promise(function(r){setTimeout(r,350);});}
+  status.textContent='✅ TERMINÉ : 16 fichiers dans Téléchargements → envoyez-les avec upload-icons-github.html';
+ }catch(err){status.textContent='❌ Erreur : '+err.message;btn.disabled=false;}
+});
+</script>
+</body>
+</html>
