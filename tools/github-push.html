@@ -1,0 +1,22 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Push GitHub</title>
+<style>body{font-family:'Segoe UI',sans-serif;background:#f5f5f5;padding:1.5rem;max-width:760px;margin:auto}h1{color:#8f1d2c;font-size:1.3rem}input,select,textarea{width:100%;padding:.7rem;margin:.3rem 0;border:2px solid #ddd;border-radius:8px;font-size:.95rem;box-sizing:border-box}textarea{height:240px;font-family:monospace;font-size:.78rem}button{width:100%;padding:1rem;margin:.5rem 0;border:none;border-radius:8px;font-weight:700;color:#fff;background:#2e7d32;cursor:pointer}.ok{color:#2e7d32}.ko{color:#c62828}#log{font-size:.85rem}</style></head><body>
+<h1>📤 Push GitHub — crée ou REMPLACE (jamais d'erreur « same name »)</h1>
+<input id="user" value="expertkevin06-cell"><input id="repo" value="etude-incendie-by-kevin">
+<input id="token" type="password" placeholder="Token github_pat_... (Contents Read and write)">
+<input id="path" placeholder="Chemin : js/data.js | index.html | css/styles.css | tools/autodiag.html ...">
+<label style="display:block;background:#fff;border:2px dashed #8f1d2c;border-radius:8px;padding:.6rem;text-align:center;cursor:pointer">📁 Ou choisir un fichier local<input type="file" id="file" hidden></label>
+<textarea id="content" placeholder="Collez le contenu complet..."></textarea>
+<button id="send">📤 ENVOYER</button><div id="status"></div><div id="log"></div>
+<script>
+document.getElementById('file').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;document.getElementById('path').value=f.name;var r=new FileReader();r.onload=function(){document.getElementById('content').value=r.result;};r.readAsText(f);});
+document.getElementById('send').addEventListener('click',async function(){
+ var user=document.getElementById('user').value.trim(),repo=document.getElementById('repo').value.trim(),token=document.getElementById('token').value.trim(),path=document.getElementById('path').value.trim().replace(/^\/+/,''),content=document.getElementById('content').value;
+ if(!token||!path||!content){alert('Token + chemin + contenu requis');return;}
+ document.getElementById('status').textContent='⏳ Envoi '+path+'…';
+ var b64=btoa(unescape(encodeURIComponent(content)));var sha;
+ try{var g=await fetch('https://api.github.com/repos/'+user+'/'+repo+'/contents/'+path,{headers:{Authorization:'Bearer '+token}});if(g.ok)sha=(await g.json()).sha;}catch(e){}
+ var body={message:'MAJ '+path,content:b64};if(sha)body.sha=sha;
+ var r=await fetch('https://api.github.com/repos/'+user+'/'+repo+'/contents/'+path,{method:'PUT',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)});
+ if(r.ok){document.getElementById('status').textContent='✅ '+path+(sha?' REMPLACÉ':' CRÉÉ');document.getElementById('log').innerHTML+='<div class="ok">✅ '+path+'</div>';document.getElementById('content').value='';}
+ else{var e2=await r.json().catch(function(){return{};});document.getElementById('status').textContent='❌ '+r.status;document.getElementById('log').innerHTML+='<div class="ko">❌ '+path+' '+r.status+' '+(e2.message||'')+'</div>';}});
+</script></body></html>
